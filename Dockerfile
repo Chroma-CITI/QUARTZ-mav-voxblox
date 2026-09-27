@@ -7,8 +7,8 @@ WORKDIR /opt/catkin_ws/
 # install ssh client and git
 RUN apt-get update && apt-get install -y git openssh-client
 # download public key for github.com
-RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan gitlab.inria.fr github.com >> ~/.ssh/known_hosts
-RUN mkdir -p -m 700 /root/.ssh  && echo "Host gitlab.inria.fr\n StrictHostKeyChecking accept-new\n  UserKnownHostsFile /root/.ssh/known_hosts\n" > /root/.ssh/config
+RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+#RUN mkdir -p -m 700 /root/.ssh  && echo "Host gitlab.inria.fr\n StrictHostKeyChecking accept-new\n  UserKnownHostsFile /root/.ssh/known_hosts\n" > /root/.ssh/config
 
 # Install necessary packages
 COPY requirements.txt /tmp/requirements.txt
@@ -27,7 +27,7 @@ WORKDIR /opt/catkin_ws/src/
 # Clone the repository and get the commit to be checkout at from the docker-compose.yaml file
 ARG BRANCH='master'
 ARG BRANCH_COMMIT=$BRANCH # Checkout the last commit per default
-RUN --mount=type=ssh git clone --single-branch --branch $BRANCH git@gitlab.inria.fr:chroma1/drones/mav_voxblox_planning.git \
+RUN --mount=type=ssh git clone --single-branch --branch $BRANCH git@github.com:Chroma-CITI/QUARTZ-mav-voxblox.git \
     && cd /opt/catkin_ws/src/mav_voxblox_planning/ \
     && echo "The commit to be check out is: $BRANCH_COMMIT" \
     && git checkout $BRANCH_COMMIT
@@ -42,7 +42,7 @@ WORKDIR /opt/catkin_ws/
 # HACK: ugly way to ensure that the voxblox_ros repo used is the same as in map_frontiers
 ARG VOXBLOX_BRANCH='main'
 ARG VOXBLOX_BRANCH_COMMIT=$VOXBLOX_BRANCH # Checkout the last commit per default
-RUN --mount=type=ssh git clone --single-branch --branch $VOXBLOX_BRANCH git@gitlab.inria.fr:chroma1/drones/map-frontiers.git --no-checkout \
+RUN --mount=type=ssh git clone --single-branch --branch $VOXBLOX_BRANCH git@github.com:Chroma-CITI/QUARTZ-map-frontiers.git --no-checkout \
     && cd map-frontiers/ \
     && git sparse-checkout init \
     && git sparse-checkout set voxblox voxblox_ros voxblox_msgs voxblox_rviz_plugin \
