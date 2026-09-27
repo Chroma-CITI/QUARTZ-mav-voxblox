@@ -25,9 +25,9 @@ RUN catkin init \
 WORKDIR /opt/catkin_ws/src/
 
 # Clone the repository and get the commit to be checkout at from the docker-compose.yaml file
-ARG BRANCH='master'
+ARG BRANCH='main'
 ARG BRANCH_COMMIT=$BRANCH # Checkout the last commit per default
-RUN --mount=type=ssh git clone --single-branch --branch $BRANCH git@github.com:Chroma-CITI/QUARTZ-mav-voxblox.git \
+RUN --mount=type=ssh git clone --single-branch --branch $BRANCH git@github.com:Chroma-CITI/QUARTZ-mav-voxblox.git mav_voxblox_planning \
     && cd /opt/catkin_ws/src/mav_voxblox_planning/ \
     && echo "The commit to be check out is: $BRANCH_COMMIT" \
     && git checkout $BRANCH_COMMIT
@@ -42,8 +42,8 @@ WORKDIR /opt/catkin_ws/
 # HACK: ugly way to ensure that the voxblox_ros repo used is the same as in map_frontiers
 ARG VOXBLOX_BRANCH='main'
 ARG VOXBLOX_BRANCH_COMMIT=$VOXBLOX_BRANCH # Checkout the last commit per default
-RUN --mount=type=ssh git clone --single-branch --branch $VOXBLOX_BRANCH git@github.com:Chroma-CITI/QUARTZ-map-frontiers.git --no-checkout \
-    && cd map-frontiers/ \
+RUN --mount=type=ssh git clone --single-branch --branch $VOXBLOX_BRANCH git@github.com:Chroma-CITI/QUARTZ-map-frontiers.git map-frontiers --no-checkout \
+&& cd map-frontiers/ \
     && git sparse-checkout init \
     && git sparse-checkout set voxblox voxblox_ros voxblox_msgs voxblox_rviz_plugin \
     && git checkout $VOXBLOX_BRANCH_COMMIT \
