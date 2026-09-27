@@ -1,0 +1,75 @@
+<launch>
+    <!-- General params -->
+    <arg name="namespace" default="intelaero_bugwright_0"/>
+    <arg name="frame_id" value="world" />
+
+    <group ns="$(arg namespace)">
+        <node name="mav_local_planner" pkg="mav_local_planner" type="mav_local_planner_node" respawn="true" args="-alsologtostderr" output="screen" clear_params="true">
+            <remap from="pointcloud" to="/all_pointclouds"/>
+            <remap from="odometry" to="groundtruth/odom" />
+            <remap from="waypoint" to="next_best_viewpoint" />
+            <remap from="waypoint_list" to="next_best_viewpoint_list" />
+            <remap from="mav_local_planner/esdf_map_in" to="/voxblox_node/esdf_map_out" />
+            <remap from="mav_local_planner/tsdf_map_in" to="/voxblox_node/tsdf_map_out" />
+
+            <param name="safe_navigation" type="bool" command="rosparam get /mav_local_planner/safe_navigation" />
+
+            <param name="tsdf_voxel_size" type="double" command="rosparam get /voxel_size" />
+            <param name="tsdf_voxels_per_side" type="int" command="rosparam get /voxels_per_side" />
+            <param name="esdf_max_distance_m" value="2.0" />
+            <param name="update_mesh_every_n_sec" value="0.0" />
+            <param name="traversability_radius" type="double" command="rosparam get /mav_local_planner/robot_radius" />
+            <param name="publish_traversable" value="true" />
+            <param name="slice_level" value="1.0" />
+            <param name="publish_slices" value="true" />
+
+            <param name="local_frame_id" value="$(arg frame_id)" />
+            <param name="world_frame" value="$(arg frame_id)" />
+            <param name="namespace" value="$(arg namespace)" />
+            <!-- HACK: "disabling" command publishing -->
+            <param name="command_publishing_dt" type="double" command="rosparam get /mav_local_planner/command_publishing_dt" />
+            <!-- No need to replan if no command is republished -->
+            <param name="replan_dt" type="double" command="rosparam get /mav_local_planner/replan_dt" />
+            <!-- Important parameter to control how the drone will follow the trajectory -->
+            <param name="sampling_dt" type="double" command="rosparam get /mav_local_planner/sampling_dt" />
+            <!-- Important parameter to constantly check if the drone is not about to collide -->
+            <param name="collision_check_dt" type="double" command="rosparam get /mav_local_planner/collision_check_dt" />
+            <param name="number_of_points_to_collision_check" type="int" command="rosparam get /mav_local_planner/number_of_points_to_collision_check" />
+            <param name="number_of_consecutive_blocked_points_for_collision" type="int" command="rosparam get /mav_local_planner/number_of_consecutive_blocked_points_for_collision" />
+            <param name="plan_to_start" value="true" />
+            <param name="replan_lookahead_sec" value="0.1" />
+            <param name="mpc_prediction_horizon" value="300" />
+            
+            <!-- <param name="clear_sphere_for_planning" value="true" />
+            <param name="clear_sphere_radius" value="2.0" />
+            <param name="occupied_sphere_radius" value="2.0" /> -->
+
+            <param name="robot_radius" type="double" command="rosparam get /mav_local_planner/robot_radius" />
+            <param name="planning_horizon_m" value="20.0" />
+            <param name="autostart" value="true" />
+            <param name="verbose" value="false" />
+            <param name="timing" value="false" />
+            <!-- Parameters in charge of the curvature of trajectory -->
+            <param name="v_max" type="double" command="rosparam get /mav_local_planner/v_max" />
+            <param name="a_max" type="double" command="rosparam get /mav_local_planner/a_max" />
+            <param name="yaw_rate_max" type="double" command="rosparam get /mav_local_planner/yaw_rate_max" />
+            <!-- TODO: currently avoid collision do not work but should look into it -->
+            <param name="avoid_collisions" type="bool" command="rosparam get /mav_local_planner/avoid_collisions"  />
+
+            <!-- What to do in case of failure. -->
+            <param name="goal_selector_strategy" value="none" />
+            <!-- <param name="smoother_name" type="string" command="rosparam get /mav_local_planner/smoother_name" /> -->
+            <param name="use_shotgun" value="true" />
+            <param name="use_shotgun_path" value="true" />
+
+            <!-- Parameters for idle checker -->
+            <param name="idle_queue_size" type="int" command="rosparam get /mav_local_planner/idle_queue_size" />
+            <param name="min_speed_treshold" type="double" command="rosparam get /mav_local_planner/min_speed_treshold" />
+
+            <!-- When and where to log results -->
+            <param name="is_manual_launch" type="bool" value="$(env MANUAL_LAUNCH)" />
+            <param name="log_dir" value="/.ros/log/$(env LOGGING_FOLDER)/trajectories/" />
+            <param name="log_file" value="trajectory_$(env WORLD)_$(env RUN_ID)_$(arg namespace).txt" />
+        </node>
+    </group>
+</launch>
